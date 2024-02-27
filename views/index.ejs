@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+
+    <title>Ejemplo Plantilla EJS</title>
+    <style>
+        /* Estilos adicionales para la tabla */
+       
+        th {
+            background-color: black;
+            color: white;
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: weight;
+            font-style: normal;
+        }
+        .ocupado1 {
+            color: red;
+        }
+        .libre1 {
+            color: green;
+        }
+
+        #total-importe {
+         background-color: #1E90FF; /* Azul oscuro */
+         color: white;  
+}    
+
+        .container-botones{
+        text-align: center;
+
+}
+
+
+    </style>
+</head>
+<body>
+    
+    <h2 style="text-align: center;"><b><u>PARKING</b></u></h2>
+    <div style="display: flex; justify-content: space-between;">
+        <h3 class="ocupado1">O: Ocupado</h3>
+        <h3 class="libre1">L: Libre</h3> 
+    </div>
+    <h2 style="text-align: center; font-family: Montserrat, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: weight;
+    font-style: normal;" id="total-importe"></h2>
+    
+  
+<div id="primera-planta">
+    <h2 style="text-align: center; font-family: Montserrat, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: weight;
+    font-style: normal;">PRIMERA PLANTA</h2>
+    <div class="row" id="primera-planta-cards">
+        <% var primeraPlanta = estacionamientos.slice(0, 10);
+        primeraPlanta.forEach(function(estacionamiento) { %>
+        <div class="col-2 mb-3">
+            <div class="card <%= estacionamiento.estado === 'L' ? 'bg-success' : 'bg-danger' %>">
+                <div class="card-body">
+                    <h5 class="card-title">Plaza: <%= estacionamiento.id %></h5>
+                    <p class="card-text">Planta: <%= estacionamiento.planta %></p>
+                    <p class="card-text">Estado: <%= estacionamiento.estado %></p>
+                </div>
+            </div>
+        </div>
+        <% }); %>
+    </div>
+</div>
+<br>
+<div id="segunda-planta">
+    <h2 style="text-align: center; font-family: Montserrat, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: weight;
+    font-style: normal;">SEGUNDA PLANTA</h2>
+    <div class="row" id="segunda-planta-cards">
+        <% var segundaPlanta = estacionamientos.slice(10, 20);
+        segundaPlanta.forEach(function(estacionamiento) { %>
+        <div class="col-2 mb-3">
+            <div class="card <%= estacionamiento.estado === 'L' ? 'bg-success' : 'bg-danger' %>">
+                <div class="card-body">
+                    <h5 class="card-title">Plaza: <%= estacionamiento.id %></h5>
+                    <p class="card-text">Planta: <%= estacionamiento.planta %></p>
+                    <p class="card-text">Estado: <%= estacionamiento.estado %></p>
+                </div>
+            </div>
+        </div>
+        <% }); %>
+    </div>
+</div>
+
+<div id="compras"></div>
+
+
+<div class="modal fade" id="comprasModal" tabindex="-1" role="dialog" aria-labelledby="comprasModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="comprasModalLabel">Lista de Compras</h5>
+          <button type="button" class="close" aria-label="Close" onclick="cerrarModal()">
+            <span aria-hidden="true">&times;</span>
+          </button>         
+        </div>
+        <div class="modal-body" id="comprasModalBody">
+          <!-- Aquí se insertará la tabla generada -->
+        </div>
+      </div>
+    </div>
+</div>
+
+  
+           
+
+    <br>
+    <div class="container-botones">
+    <button class="btn btn-primary" id="miBoton">Entrada Coche</button>
+    <button id="miBoton1" class="btn btn-info">Salida Coche</button>
+    <button id="botonfactura" class="btn btn-warning" type="button">Importe Total</button>
+    <button type="button" class="btn btn-secondary" onclick="comenzarSimulacion()">Comenzar Demo</button>
+    <button type="button" class="btn btn-dark" onclick="detenerSimulacion()">Detener Demo</button>
+    <button type="button" class="btn btn-success" id="listarCompra">ListarCompra</button>
+
+</div>
+
+    <script>
+function cerrarModal(){
+$('#comprasModal').modal('hide');
+}
+
+
+
+setInterval(cargarPlazas, 500);
+
+function cargarPlazas() {
+    $.ajax({
+        url: '/estacionamiento',  
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            $('#primera-planta-cards').html(generarTarjetas(data.slice(0, 10)));
+            $('#segunda-planta-cards').html(generarTarjetas(data.slice(10, 20)));
+            console.log("Data recibida:", data); // Verifica qué tipo de datos recibes aquí
+        },
+        error: function(error) {
+            console.error('Error al cargar las plazas:', error);
+
+        }
+    });
+}
+
+function generarTarjetas(estacionamientos) {
+    var html = '';
+    estacionamientos.forEach(function(estacionamiento) {
+        html += `
+            <div class="col-2 mb-3">
+                <div class="card ${estacionamiento.estado === 'L' ? 'bg-success' : 'bg-danger'}">
+                    <div class="card-body">
+                        <h5 class="card-title">Plaza: ${estacionamiento.id}</h5>
+                        <p class="card-text">Planta: ${estacionamiento.planta}</p>
+                        <p class="card-text">Estado: ${estacionamiento.estado}</p>
+                    </div>
+                </div>
+            </div>`;
+    });
+    return html;
+}
+
+
+// ENTRADA
+function entrada() {
+    fetch("/boton", {
+            method: "POST",
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error en la solicitud");
+            }
+            return response.json(); // Si esperas una respuesta JSON
+        })
+        .then(data => {
+            // Manejo de la respuesta del servidor
+            console.log(data);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+}
+
+document.getElementById('miBoton').addEventListener('click', entrada);
+
+// SALIDA
+function salida() {
+    fetch("/boton1", {
+            method: "POST",
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error en la solicitud");
+            }
+            return response.json(); // Si esperas una respuesta JSON
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+}
+
+document.getElementById('miBoton1').addEventListener('click', salida);
+
+
+
+
+document.getElementById("listarCompra").addEventListener("click", function() {
+    fetch("/listarcompras", {
+        method: "GET",
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Error en la solicitud");
+        }
+        return response.json(); // Si esperas una respuesta JSON
+    })
+    .then(data => {
+        console.log(data);
+        
+        var mensaje = "";
+        mensaje += `
+            <table class="table table-bordered w-100">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha de Entrada</th>
+                        <th>Fecha de Salida</th>
+                        <th>Factura</th>
+                        <th>ID Estacionamiento</th>
+                        <th>ID Coche</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        
+        data.forEach(function(compra) {
+            mensaje += `
+                <tr>
+                    <td>${compra.id}</td>
+                    <td>${compra.horaEntrada}</td>
+                    <td>${compra.horaSalida}</td>
+                    <td>${compra.factura}</td>
+                    <td>${compra.id_estacionamiento}</td>
+                    <td>${compra.id_coche}</td>
+                </tr>`;
+        });
+
+        mensaje += `
+                </tbody>
+            </table>`;
+
+        // Mostrar el mensaje en el modal
+        document.getElementById("comprasModalBody").innerHTML = mensaje;
+        $('#comprasModal').modal('show');
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+});
+
+
+    //IMPORTE TOTAL
+    document.getElementById("botonfactura").addEventListener("click", function(){
+        fetch("/botonfactura", {
+            method: "POST",
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error en la solicitud");
+            }
+            return response.json(); // Si esperas una respuesta JSON
+            
+        })
+        .then(data => {
+            // Imprimir el total del importe en el elemento con id "total-importe"
+            var totalImporteElement = document.getElementById("total-importe");
+            totalImporteElement.innerHTML = `Total del importe: ${data.total_importe} €`; 
+            totalImporteElement.style.display = "block";      
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    });
+
+    simulacion_entrada = null;
+    simulacion_salida = null;
+
+    function comenzarSimulacion() {
+    console.log("Entra simulacion");
+    simulacion_entrada = setInterval(entrada, Math.floor(Math.random() * (30000 - 15000 + 1)) + 15000);
+    simulacion_salida =  setInterval(salida, Math.floor(Math.random() * (30000 - 15000 + 1)) + 15000);
+
+}
+
+function detenerSimulacion(simulacion_entrada, simulacion_salida) {
+    console.log("Simulación detenida");
+    clearInterval(simulacion_entrada);
+    clearInterval(simulacion_salida);
+}
+
+
+
+    </script>
+      
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.min.js"></script>
+    
+
+   
+</body>
+</html>

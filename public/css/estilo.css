@@ -1,0 +1,36 @@
+h1{
+color: red;
+
+}
+
+table {
+    border-collapse: collapse; /* Combina bordes adyacentes en uno solo */
+    width: 100%; /* Ancho de la tabla */
+    display: none;
+}
+
+/* Estilo para los encabezados de columna */
+th {
+     /* Borde de 1 píxel sólido negro */
+    padding: 8px; /* Espaciado interno para los encabezados */
+    text-align: center; /* Alineación del texto a la izquierda */
+}
+
+/* Estilo para las celdas de datos */
+td {
+     /* Borde de 1 píxel sólido negro */
+    padding: 8px; /* Espaciado interno para las celdas */
+    text-align: center; /* Alineación del texto a la izquierda */
+}
+
+.ocupado{
+    color: red;
+}
+
+.libre{
+    color: green;
+}
+
+
+
+
